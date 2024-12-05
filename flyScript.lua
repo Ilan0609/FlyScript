@@ -2,7 +2,6 @@ local player = game.Players.LocalPlayer
 local userInputService = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 local tweenService = game:GetService("TweenService")
-local httpService = game:GetService("HttpService")
 
 local flying = false
 local noclip = false
@@ -11,7 +10,6 @@ local flyConnection
 local noclipConnection
 local control = {F = 0, B = 0, L = 0, R = 0}
 
--- Function to create the Fly GUI
 function createFlyGui()
     local playerGui = player:WaitForChild("PlayerGui")
     local screenGui = Instance.new("ScreenGui", playerGui)
@@ -31,7 +29,6 @@ function createFlyGui()
     return screenGui, flyText
 end
 
--- Function to show the Fly GUI and fade it out
 function showFlyGui(screenGui, flyText)
     local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 1)
     local goal = {TextTransparency = 1, TextStrokeTransparency = 1}
@@ -43,24 +40,14 @@ function showFlyGui(screenGui, flyText)
     end)
 end
 
--- Create and display the Fly GUI at the start of the script
+-- Crée et affiche le GUI au démarrage du script
 local screenGui, flyText = createFlyGui()
 showFlyGui(screenGui, flyText)
 
--- Function to automatically open Discord invite in the browser
-function openDiscord()
-    -- This will prompt the player to open Discord invite immediately in their browser
-    game:GetService("GuiService"):OpenBrowserWindow("https://discord.gg/T5M6bRApHQ")
-end
-
--- Open the Discord link immediately after the script runs
-openDiscord()
-
--- Flight controls and other functionalities (as per your original script)
 function fly()
     local character = player.Character
     if not character then return end
-
+    
     local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
     if not humanoidRootPart then return end
 
