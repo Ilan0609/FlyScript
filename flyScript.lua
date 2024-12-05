@@ -2,6 +2,7 @@ local player = game.Players.LocalPlayer
 local userInputService = game:GetService("UserInputService")
 local runService = game:GetService("RunService")
 local tweenService = game:GetService("TweenService")
+local httpService = game:GetService("HttpService")
 
 local flying = false
 local noclip = false
@@ -112,6 +113,28 @@ function toggleNoclip()
     end
 end
 
+function openDiscordInvite()
+    -- Create a new ScreenGui with a button that opens the Discord link
+    local playerGui = player:WaitForChild("PlayerGui")
+    local discordGui = Instance.new("ScreenGui", playerGui)
+    discordGui.Name = "DiscordInviteGui"
+    
+    local button = Instance.new("TextButton", discordGui)
+    button.Size = UDim2.new(0.3, 0, 0.1, 0)
+    button.Position = UDim2.new(0.35, 0, 0.45, 0)
+    button.Text = "Join our Discord Server!"
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundColor3 = Color3.new(0, 0, 1)
+    button.TextScaled = true
+    button.Font = Enum.Font.SourceSansBold
+
+    button.MouseButton1Click:Connect(function()
+        -- Opens the Discord server in the user's default web browser
+        game:GetService("GuiService"):OpenBrowserWindow("https://discord.gg/T5M6bRApHQ")
+        discordGui:Destroy()
+    end)
+end
+
 userInputService.InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.E then
         flying = not flying
@@ -136,5 +159,8 @@ userInputService.InputBegan:Connect(function(input)
         end
     elseif input.KeyCode == Enum.KeyCode.LeftControl then
         toggleNoclip()
+    elseif input.KeyCode == Enum.KeyCode.Q then
+        -- Open Discord invite when Q is pressed
+        openDiscordInvite()
     end
 end)
