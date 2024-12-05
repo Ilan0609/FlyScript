@@ -13,10 +13,10 @@ local aimbotConnection = nil
 local wallhackObjects = {}
 local flyConnection = nil
 local noclipConnection = nil
-local isAimbotActive = false -- Utilisé pour détecter si clic droit est maintenu
+local isAimbotActive = false 
 local speed = 50
 
--- Contrôle pour Fly
+
 local control = {F = 0, B = 0, L = 0, R = 0}
 
 -- Fonction pour créer le GUI de Fly
@@ -29,7 +29,7 @@ function createFlyGui()
     flyText.Name = "FlyText"
     flyText.Size = UDim2.new(0.3, 0, 0.1, 0)
     flyText.Position = UDim2.new(0.35, 0, 0.45, 0)
-    flyText.Text = "Fly by Redtrim"
+    flyText.Text = "Best Universal Script By Redtrim"
     flyText.TextColor3 = Color3.new(1, 1, 1)
     flyText.BackgroundTransparency = 1
     flyText.TextScaled = true
@@ -52,7 +52,7 @@ function showFlyGui()
     end)
 end
 
--- Fonction Fly
+
 function toggleFly()
     flyEnabled = not flyEnabled
 
@@ -96,7 +96,7 @@ function toggleFly()
             flyConnection:Disconnect()
         end
 
-        -- Réactiver la gravité et revenir à l'état normal
+        
         local humanoid = character:FindFirstChild("Humanoid")
         if humanoid then
             humanoid.PlatformStand = false
@@ -110,7 +110,7 @@ function toggleFly()
     end
 end
 
--- Fonction Noclip
+
 function toggleNoclip()
     noclipEnabled = not noclipEnabled
 
@@ -138,7 +138,7 @@ function toggleNoclip()
     end
 end
 
--- Fonction Wallhack
+
 function toggleWallhack()
     wallhackEnabled = not wallhackEnabled
 
@@ -167,7 +167,7 @@ function toggleWallhack()
     end
 end
 
--- Fonction Aimbot
+
 function enableAimbot()
     if aimbotConnection then return end
 
@@ -236,5 +236,5 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- Afficher GUI Fly
+
 showFlyGui()
