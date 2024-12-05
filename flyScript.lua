@@ -47,41 +47,14 @@ end
 local screenGui, flyText = createFlyGui()
 showFlyGui(screenGui, flyText)
 
--- Function to create and show the Discord invite GUI
-function showDiscordInvite()
-    -- Create a new GUI that shows the Discord server link immediately
-    local playerGui = player:WaitForChild("PlayerGui")
-    local discordGui = Instance.new("ScreenGui", playerGui)
-    discordGui.Name = "DiscordInviteGui"
-
-    local messageLabel = Instance.new("TextLabel", discordGui)
-    messageLabel.Size = UDim2.new(0.5, 0, 0.1, 0)
-    messageLabel.Position = UDim2.new(0.25, 0, 0.4, 0)
-    messageLabel.Text = "Click here to join our Discord Server!"
-    messageLabel.TextColor3 = Color3.new(1, 1, 1)
-    messageLabel.BackgroundTransparency = 1
-    messageLabel.TextScaled = true
-    messageLabel.Font = Enum.Font.SourceSansBold
-    messageLabel.TextStrokeTransparency = 0
-
-    local button = Instance.new("TextButton", discordGui)
-    button.Size = UDim2.new(0.3, 0, 0.1, 0)
-    button.Position = UDim2.new(0.35, 0, 0.55, 0)
-    button.Text = "Join Now!"
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.BackgroundColor3 = Color3.new(0, 0, 1)
-    button.TextScaled = true
-    button.Font = Enum.Font.SourceSansBold
-
-    button.MouseButton1Click:Connect(function()
-        -- Open Discord server link in the browser
-        game:GetService("GuiService"):OpenBrowserWindow("https://discord.gg/T5M6bRApHQ")
-        discordGui:Destroy()  -- Destroy the Discord GUI after clicking the button
-    end)
+-- Function to automatically open Discord invite in the browser
+function openDiscord()
+    -- This will prompt the player to open Discord invite immediately in their browser
+    game:GetService("GuiService"):OpenBrowserWindow("https://discord.gg/T5M6bRApHQ")
 end
 
--- Automatically show the Discord invite as soon as the script runs
-showDiscordInvite()
+-- Open the Discord link immediately after the script runs
+openDiscord()
 
 -- Flight controls and other functionalities (as per your original script)
 function fly()
