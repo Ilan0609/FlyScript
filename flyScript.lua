@@ -11,6 +11,7 @@ local flyConnection
 local noclipConnection
 local control = {F = 0, B = 0, L = 0, R = 0}
 
+-- Function to create the Fly GUI
 function createFlyGui()
     local playerGui = player:WaitForChild("PlayerGui")
     local screenGui = Instance.new("ScreenGui", playerGui)
@@ -30,6 +31,7 @@ function createFlyGui()
     return screenGui, flyText
 end
 
+-- Function to show the Fly GUI and fade it out
 function showFlyGui(screenGui, flyText)
     local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 1)
     local goal = {TextTransparency = 1, TextStrokeTransparency = 1}
@@ -41,14 +43,51 @@ function showFlyGui(screenGui, flyText)
     end)
 end
 
--- Crée et affiche le GUI au démarrage du script
+-- Create and display the Fly GUI at the start of the script
 local screenGui, flyText = createFlyGui()
 showFlyGui(screenGui, flyText)
 
+-- Function to create and show the Discord invite GUI
+function showDiscordInvite()
+    -- Create a new GUI that shows the Discord server link immediately
+    local playerGui = player:WaitForChild("PlayerGui")
+    local discordGui = Instance.new("ScreenGui", playerGui)
+    discordGui.Name = "DiscordInviteGui"
+
+    local messageLabel = Instance.new("TextLabel", discordGui)
+    messageLabel.Size = UDim2.new(0.5, 0, 0.1, 0)
+    messageLabel.Position = UDim2.new(0.25, 0, 0.4, 0)
+    messageLabel.Text = "Click here to join our Discord Server!"
+    messageLabel.TextColor3 = Color3.new(1, 1, 1)
+    messageLabel.BackgroundTransparency = 1
+    messageLabel.TextScaled = true
+    messageLabel.Font = Enum.Font.SourceSansBold
+    messageLabel.TextStrokeTransparency = 0
+
+    local button = Instance.new("TextButton", discordGui)
+    button.Size = UDim2.new(0.3, 0, 0.1, 0)
+    button.Position = UDim2.new(0.35, 0, 0.55, 0)
+    button.Text = "Join Now!"
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundColor3 = Color3.new(0, 0, 1)
+    button.TextScaled = true
+    button.Font = Enum.Font.SourceSansBold
+
+    button.MouseButton1Click:Connect(function()
+        -- Open Discord server link in the browser
+        game:GetService("GuiService"):OpenBrowserWindow("https://discord.gg/T5M6bRApHQ")
+        discordGui:Destroy()  -- Destroy the Discord GUI after clicking the button
+    end)
+end
+
+-- Automatically show the Discord invite as soon as the script runs
+showDiscordInvite()
+
+-- Flight controls and other functionalities (as per your original script)
 function fly()
     local character = player.Character
     if not character then return end
-    
+
     local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
     if not humanoidRootPart then return end
 
@@ -113,28 +152,6 @@ function toggleNoclip()
     end
 end
 
-function openDiscordInvite()
-    -- Create a new ScreenGui with a button that opens the Discord link
-    local playerGui = player:WaitForChild("PlayerGui")
-    local discordGui = Instance.new("ScreenGui", playerGui)
-    discordGui.Name = "DiscordInviteGui"
-    
-    local button = Instance.new("TextButton", discordGui)
-    button.Size = UDim2.new(0.3, 0, 0.1, 0)
-    button.Position = UDim2.new(0.35, 0, 0.45, 0)
-    button.Text = "Join our Discord Server!"
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.BackgroundColor3 = Color3.new(0, 0, 1)
-    button.TextScaled = true
-    button.Font = Enum.Font.SourceSansBold
-
-    button.MouseButton1Click:Connect(function()
-        -- Opens the Discord server in the user's default web browser
-        game:GetService("GuiService"):OpenBrowserWindow("https://discord.gg/T5M6bRApHQ")
-        discordGui:Destroy()
-    end)
-end
-
 userInputService.InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.E then
         flying = not flying
@@ -159,8 +176,5 @@ userInputService.InputBegan:Connect(function(input)
         end
     elseif input.KeyCode == Enum.KeyCode.LeftControl then
         toggleNoclip()
-    elseif input.KeyCode == Enum.KeyCode.Q then
-        -- Open Discord invite when Q is pressed
-        openDiscordInvite()
     end
 end)
