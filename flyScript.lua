@@ -13,46 +13,47 @@ local aimbotConnection = nil
 local wallhackObjects = {}
 local flyConnection = nil
 local noclipConnection = nil
-local isAimbotActive = false 
+local isAimbotActive = false -- Utilisé pour détecter si clic droit est maintenu
 local speed = 50
 
-
+-- Contrôle pour Fly
 local control = {F = 0, B = 0, L = 0, R = 0}
 
--- Fonction pour créer le GUI de Fly
-function createFlyGui()
+-- Fonction pour créer le GUI de Fly avec les touches
+function createControlsGui()
     local playerGui = localPlayer:WaitForChild("PlayerGui")
     local screenGui = Instance.new("ScreenGui", playerGui)
-    screenGui.Name = "FlyGui"
+    screenGui.Name = "ControlsGui"
 
-    local flyText = Instance.new("TextLabel", screenGui)
-    flyText.Name = "FlyText"
-    flyText.Size = UDim2.new(0.3, 0, 0.1, 0)
-    flyText.Position = UDim2.new(0.35, 0, 0.45, 0)
-    flyText.Text = "Best Universal Script By Redtrim"
-    flyText.TextColor3 = Color3.new(1, 1, 1)
-    flyText.BackgroundTransparency = 1
-    flyText.TextScaled = true
-    flyText.Font = Enum.Font.SourceSansBold
-    flyText.TextStrokeTransparency = 0
+    -- Créer le label pour afficher les touches
+    local controlsText = Instance.new("TextLabel", screenGui)
+    controlsText.Name = "ControlsText"
+    controlsText.Size = UDim2.new(0.3, 0, 0.2, 0)
+    controlsText.Position = UDim2.new(0.7, 0, 0, 0)
+    controlsText.Text = "Fly: E\nNoclip: LeftControl\nWallhack: P\nAimbot: Right Click"
+    controlsText.TextColor3 = Color3.new(1, 1, 1)
+    controlsText.BackgroundTransparency = 1
+    controlsText.TextScaled = true
+    controlsText.Font = Enum.Font.SourceSansBold
+    controlsText.TextStrokeTransparency = 0
 
-    return screenGui, flyText
+    return screenGui, controlsText
 end
 
 -- Afficher le GUI
-function showFlyGui()
-    local screenGui, flyText = createFlyGui()
+function showControlsGui()
+    local screenGui, controlsText = createControlsGui()
     local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 1)
     local goal = {TextTransparency = 1, TextStrokeTransparency = 1}
 
-    local fadeOutTween = TweenService:Create(flyText, tweenInfo, goal)
+    local fadeOutTween = TweenService:Create(controlsText, tweenInfo, goal)
     fadeOutTween:Play()
     fadeOutTween.Completed:Connect(function()
         screenGui:Destroy()
     end)
 end
 
-
+-- Fonction Fly
 function toggleFly()
     flyEnabled = not flyEnabled
 
@@ -91,26 +92,13 @@ function toggleFly()
             bodyGyro.CFrame = CFrame.new(humanoidRootPart.Position, humanoidRootPart.Position + Camera.CFrame.LookVector)
         end)
     else
-        -- Quand le vol est désactivé, réactiver la gravité et supprimer le BodyGyro et BodyVelocity
         if flyConnection then
             flyConnection:Disconnect()
         end
-
-        
-        local humanoid = character:FindFirstChild("Humanoid")
-        if humanoid then
-            humanoid.PlatformStand = false
-        end
-
-        -- Réinitialiser le BodyGyro et le BodyVelocity
-        local bodyGyro = humanoidRootPart:FindFirstChildOfClass("BodyGyro")
-        local bodyVelocity = humanoidRootPart:FindFirstChildOfClass("BodyVelocity")
-        if bodyGyro then bodyGyro:Destroy() end
-        if bodyVelocity then bodyVelocity:Destroy() end
     end
 end
 
-
+-- Fonction Noclip
 function toggleNoclip()
     noclipEnabled = not noclipEnabled
 
@@ -138,7 +126,7 @@ function toggleNoclip()
     end
 end
 
-
+-- Fonction Wallhack
 function toggleWallhack()
     wallhackEnabled = not wallhackEnabled
 
@@ -167,7 +155,7 @@ function toggleWallhack()
     end
 end
 
-
+-- Fonction Aimbot
 function enableAimbot()
     if aimbotConnection then return end
 
@@ -236,5 +224,5 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
-
+-- Afficher GUI Fly
 showFlyGui()
