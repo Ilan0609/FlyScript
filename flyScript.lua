@@ -5,21 +5,21 @@ local TweenService = game:GetService("TweenService")
 local Camera = workspace.CurrentCamera
 
 local localPlayer = Players.LocalPlayer
+local aimbotEnabled = false
+local isAimbotActive = false
+local aimbotConnection = nil
 local flyEnabled = false
 local noclipEnabled = false
-local wallhackEnabled = false
-local aimbotEnabled = false
-local aimbotConnection = nil
-local wallhackObjects = {}
 local flyConnection = nil
 local noclipConnection = nil
-local isAimbotActive = false -- Utilisé pour détecter si clic droit est maintenu
-local speed = 50
+local wallhackEnabled = false
+local speed = 16 -- Vitesse par défaut au sol
+local defaultFlySpeed = 50 -- Vitesse en vol
 
 -- Contrôle pour Fly
 local control = {F = 0, B = 0, L = 0, R = 0}
 
--- Fonction pour créer le GUI de Fly
+-- GUI "XploitUniversalHub By Redtrim"
 function createFlyGui()
     local playerGui = localPlayer:WaitForChild("PlayerGui")
     local screenGui = Instance.new("ScreenGui", playerGui)
@@ -36,12 +36,24 @@ function createFlyGui()
     flyText.Font = Enum.Font.SourceSansBold
     flyText.TextStrokeTransparency = 0
 
+    -- Ajouter une animation de disparition en fondu après 3 secondes
+    local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 1)
+    local goal = {TextTransparency = 1, TextStrokeTransparency = 1}
+
+    local fadeOutTween = TweenService:Create(flyText, tweenInfo, goal)
+    fadeOutTween:Play()
+
+    fadeOutTween.Completed:Connect(function()
+        screenGui:Destroy()
+    end)
+
     return screenGui, flyText
 end
 
--- Afficher le GUI
 function showFlyGui()
     local screenGui, flyText = createFlyGui()
+    -- Déclenche la disparition en fondu après un certain temps
+    wait(3) -- Attendre 3 secondes avant de démarrer le fondu
     local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 1)
     local goal = {TextTransparency = 1, TextStrokeTransparency = 1}
 
@@ -50,6 +62,78 @@ function showFlyGui()
     fadeOutTween.Completed:Connect(function()
         screenGui:Destroy()
     end)
+end
+
+-- GUI pour changer la vitesse au sol
+function createSpeedGui()
+    local playerGui = localPlayer:WaitForChild("PlayerGui")
+    local screenGui = Instance.new("ScreenGui", playerGui)
+    screenGui.Name = "SpeedGui"
+
+    -- Cadre principal
+    local frame = Instance.new("Frame", screenGui)
+    frame.Name = "MainFrame"
+    frame.Size = UDim2.new(0.2, 0, 0.1, 0)
+    frame.Position = UDim2.new(0.8, 0, 0.05, 0) -- En haut à droite
+    frame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+    frame.BorderSizePixel = 1
+    frame.Draggable = true
+    frame.Active = true
+
+    -- Label pour afficher la vitesse actuelle
+    local speedLabel = Instance.new("TextLabel", frame)
+    speedLabel.Name = "SpeedLabel"
+    speedLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    speedLabel.Position = UDim2.new(0, 0, 0, 0)
+    speedLabel.BackgroundTransparency = 1
+    speedLabel.TextColor3 = Color3.new(1, 1, 1)
+    speedLabel.TextScaled = true
+    speedLabel.Font = Enum.Font.SourceSansBold
+    speedLabel.Text = "Speed: " .. tostring(speed)
+
+    -- Input pour changer la vitesse
+    local speedInput = Instance.new("TextBox", frame)
+    speedInput.Name = "SpeedInput"
+    speedInput.Size = UDim2.new(1, 0, 0.5, 0)
+    speedInput.Position = UDim2.new(0, 0, 0.5, 0)
+    speedInput.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    speedInput.TextColor3 = Color3.new(1, 1, 1)
+    speedInput.Font = Enum.Font.SourceSans
+    speedInput.TextScaled = true
+    speedInput.Text = "Enter Speed"
+
+    speedInput.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            local newSpeed = tonumber(speedInput.Text)
+            if newSpeed and newSpeed > 0 then
+                speed = newSpeed
+                speedLabel.Text = "Speed: " .. tostring(speed)
+
+                -- Appliquer la nouvelle vitesse au sol
+                local character = localPlayer.Character
+                if character then
+                    local humanoid = character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid.WalkSpeed = speed
+                    end
+                end
+            else
+                speedInput.Text = "Invalid"
+            end
+        end
+    end)
+end
+
+-- Maintenir le GUI après la mort
+local function onCharacterAdded(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    humanoid.WalkSpeed = speed -- Appliquer la vitesse actuelle
+    createSpeedGui()
+end
+
+localPlayer.CharacterAdded:Connect(onCharacterAdded)
+if localPlayer.Character then
+    onCharacterAdded(localPlayer.Character)
 end
 
 -- Fonction Fly
@@ -62,7 +146,6 @@ function toggleFly()
     if not humanoidRootPart then return end
 
     if flyEnabled then
-        -- Créer un BodyGyro et BodyVelocity pour le vol
         local bodyGyro = Instance.new("BodyGyro", humanoidRootPart)
         local bodyVelocity = Instance.new("BodyVelocity", humanoidRootPart)
 
@@ -87,22 +170,20 @@ function toggleFly()
             control.R = UserInputService:IsKeyDown(Enum.KeyCode.D) and 1 or 0
 
             bodyVelocity.Velocity = (Camera.CFrame.LookVector * (control.F + control.B) +
-                                    Camera.CFrame.RightVector * (control.R + control.L)) * speed
+                                    Camera.CFrame.RightVector * (control.R + control.L)) * defaultFlySpeed
             bodyGyro.CFrame = CFrame.new(humanoidRootPart.Position, humanoidRootPart.Position + Camera.CFrame.LookVector)
         end)
     else
-        -- Quand le vol est désactivé, réactiver la gravité et supprimer le BodyGyro et BodyVelocity
+        -- Réactivation de la gravité et suppression des objets
         if flyConnection then
             flyConnection:Disconnect()
         end
 
-        -- Réactiver la gravité et revenir à l'état normal
-        local humanoid = character:FindFirstChild("Humanoid")
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
         if humanoid then
             humanoid.PlatformStand = false
         end
 
-        -- Réinitialiser le BodyGyro et le BodyVelocity
         local bodyGyro = humanoidRootPart:FindFirstChildOfClass("BodyGyro")
         local bodyVelocity = humanoidRootPart:FindFirstChildOfClass("BodyVelocity")
         if bodyGyro then bodyGyro:Destroy() end
@@ -128,39 +209,12 @@ function toggleNoclip()
         if noclipConnection then
             noclipConnection:Disconnect()
         end
+
+        -- Réactiver les collisions
         if localPlayer.Character then
             for _, part in ipairs(localPlayer.Character:GetDescendants()) do
                 if part:IsA("BasePart") then
                     part.CanCollide = true
-                end
-            end
-        end
-    end
-end
-
--- Fonction Wallhack
-function toggleWallhack()
-    wallhackEnabled = not wallhackEnabled
-
-    if wallhackEnabled then
-        for _, targetPlayer in ipairs(Players:GetPlayers()) do
-            if targetPlayer ~= localPlayer and targetPlayer.Team ~= localPlayer.Team and targetPlayer.Character then
-                for _, part in ipairs(targetPlayer.Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.Transparency = 0.5
-                        part.Material = Enum.Material.Neon
-                    end
-                end
-            end
-        end
-    else
-        for _, targetPlayer in ipairs(Players:GetPlayers()) do
-            if targetPlayer.Character then
-                for _, part in ipairs(targetPlayer.Character:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.Transparency = 0
-                        part.Material = Enum.Material.Plastic
-                    end
                 end
             end
         end
@@ -181,6 +235,7 @@ function enableAimbot()
             if targetPlayer ~= localPlayer and targetPlayer.Team ~= localPlayer.Team and targetPlayer.Character then
                 local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
                 if targetRoot then
+                    -- Wall Check
                     local origin = Camera.CFrame.Position
                     local direction = (targetRoot.Position - origin).Unit * 500
                     local rayParams = RaycastParams.new()
@@ -215,17 +270,17 @@ function disableAimbot()
     end
 end
 
--- Gestion Aimbot (clic droit)
+-- Gestion des touches
 UserInputService.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton2 then
-        isAimbotActive = true
-        enableAimbot()
-    elseif input.KeyCode == Enum.KeyCode.E then
+    if input.KeyCode == Enum.KeyCode.E then
         toggleFly()
     elseif input.KeyCode == Enum.KeyCode.LeftControl then
         toggleNoclip()
     elseif input.KeyCode == Enum.KeyCode.P then
-        toggleWallhack()
+        aimbotEnabled = not aimbotEnabled
+    elseif input.UserInputType == Enum.UserInputType.MouseButton2 and aimbotEnabled then
+        isAimbotActive = true
+        enableAimbot()
     end
 end)
 
@@ -236,5 +291,5 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- Afficher GUI Fly
+-- Afficher le GUI "XploitUniversalHub By Redtrim"
 showFlyGui()
