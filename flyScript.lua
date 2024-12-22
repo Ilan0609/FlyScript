@@ -16,10 +16,10 @@ local wallhackEnabled = false
 local speed = 16 -- Vitesse par défaut au sol
 local defaultFlySpeed = 50 -- Vitesse en vol
 
--- Contrôle pour Fly
+
 local control = {F = 0, B = 0, L = 0, R = 0}
 
--- GUI "XploitUniversalHub By Redtrim"
+
 function createFlyGui()
     local playerGui = localPlayer:WaitForChild("PlayerGui")
     local screenGui = Instance.new("ScreenGui", playerGui)
@@ -36,7 +36,7 @@ function createFlyGui()
     flyText.Font = Enum.Font.SourceSansBold
     flyText.TextStrokeTransparency = 0
 
-    -- Ajouter une animation de disparition en fondu après 3 secondes
+  
     local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, 1)
     local goal = {TextTransparency = 1, TextStrokeTransparency = 1}
 
@@ -64,7 +64,7 @@ function showFlyGui()
     end)
 end
 
--- GUI pour changer la vitesse au sol
+
 function createSpeedGui()
     local playerGui = localPlayer:WaitForChild("PlayerGui")
     local screenGui = Instance.new("ScreenGui", playerGui)
